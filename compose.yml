@@ -1,0 +1,29 @@
+# Kapowarr - Comic Downloader
+# docs: ../../docs/services/kapowarr.md
+
+services:
+  kapowarr:
+    image: mrcas/kapowarr:${KAPOWARR_IMAGE_TAG:-latest}
+    container_name: kapowarr
+    environment:
+      - TZ=${TZ:-America/Denver}
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import socket; s=socket.socket(); s.settimeout(5); s.connect((\"localhost\",5656)); s.close()'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ports:
+      - "${KAPOWARR_PORT:-5656}:5656"
+    volumes:
+      - ${KAPOWARR_CONFIG_PATH:-/opt/appdata/kapowarr}:/app/db
+      - ${DOWNLOADS_PATH:-/mnt/pool/downloads}:/downloads
+      - ${MEDIA_PATH:-/mnt/pool/data/media}/comics:/data/media/comics
+      - ${MEDIA_PATH:-/mnt/pool/data/media}/manga:/data/media/manga
+    networks:
+      - media
+    restart: unless-stopped
+
+networks:
+  media:
+    external: true
