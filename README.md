@@ -1,7 +1,7 @@
 # kapowarr
 
 [Kapowarr](https://github.com/Casvt/Kapowarr) manages a comic book library —
-downloading, renaming, and organizing issues and volumes.
+importing, renaming, and organizing issues and volumes.
 
 First-party [orca](https://github.com/argyle-labs/orca) plugin (service-backend).
 

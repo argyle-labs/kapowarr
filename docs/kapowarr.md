@@ -1,44 +1,53 @@
 # Kapowarr
 
-Comic and manga downloader. Monitors ComicVine for new issues and auto-downloads. Integrates with Komga.
+Comic and manga library manager. Monitors ComicVine for new issues and imports them automatically. Integrates with Komga.
 
-- **Host**: <host> (<ip>)
 - **Port**: 5656
-- **Image**: `mrcas95/kapowarr`
-- **Compose**: [compose/kapowarr/docker-compose.yml](../../compose/kapowarr/docker-compose.yml)
-- **Network**: `media`
+- **Image**: `mrcas/kapowarr`
+- **Compose**: [compose.yml](../compose.yml)
+- **Network**: `media` (external)
 
 ## Volumes
 
-| Host Path | Container Path | Description |
-|-----------|---------------|-------------|
-| `/opt/appdata/kapowarr` | `/config` | Kapowarr config and database |
-| `/mnt/<host>/downloads` | `/downloads/completed` | Completed downloads (NFS) |
-| `/mnt/<host>/data/media/comics` | `/data/media/comics` | Comics library (NFS) |
-| `/mnt/<host>/data/media/manga` | `/data/media/manga` | Manga library (NFS) |
+| Container Path | Description |
+|----------------|-------------|
+| `/app/db` | Kapowarr config and database |
+| `/downloads` | Imported files (working area) |
+| `/data/media/comics` | Comics library |
+| `/data/media/manga` | Manga library |
 
-## Download Clients
+Host paths are parameterized in [compose.yml](../compose.yml) via `KAPOWARR_CONFIG_PATH`, `DOWNLOADS_PATH`, and `MEDIA_PATH`.
 
-Kapowarr has its own built-in downloader (uses getcomics.org and similar sources). Configure in Settings → Downloaders.
+## Sources
+
+Kapowarr fetches issues through its built-in acquisition client. Configure sources in Settings.
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `TZ` | `Etc/UTC` | Timezone |
+| `TZ` | `America/Denver` | Timezone |
 | `KAPOWARR_IMAGE_TAG` | `latest` | Image tag |
-| `KAPOWARR_CONFIG_PATH` | `/opt/appdata/kapowarr` | Config directory |
+| `KAPOWARR_CONFIG_PATH` | `/opt/appdata/kapowarr` | Host config directory (mounted at `/app/db`) |
 | `KAPOWARR_PORT` | `5656` | Host port |
-| `DOWNLOADS_PATH` | `/mnt/<host>/downloads` | Downloads directory |
-| `MEDIA_PATH` | `/mnt/<host>/data/media` | Media library base path |
+| `DOWNLOADS_PATH` | `/mnt/pool/downloads` | Host imports working directory |
+| `MEDIA_PATH` | `/mnt/pool/data/media` | Media library base path |
 
 ## Deploy
 
-Deployed as a Portainer Git stack from `<github-org>/<repo>` main branch. Auto-updates every 5 minutes.
+```bash
+docker compose up -d
+```
+
+The `media` network is external and must exist beforehand:
+
+```bash
+docker network create media
+```
 
 ## Troubleshooting
 
 ```bash
 docker logs kapowarr
-mount | grep <host>  # verify NFS mounts
+docker compose ps
 ```
