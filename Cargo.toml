@@ -1,0 +1,29 @@
+[package]
+name = "kapowarr"
+version = "0.1.0"
+edition = "2024"
+description = "Kapowarr comic/manga library manager — orca plugin (service-backend)"
+
+[package.metadata.orca]
+category = "downloads"
+
+[lib]
+name = "kapowarr"
+path = "src/lib.rs"
+# `rlib` retains the in-crate `#[cfg(test)]` harness. The plugin artifact is
+# the `[[bin]]` below — a dynamic subprocess the loader spawns, not a dlopened
+# cdylib.
+crate-type = ["rlib"]
+
+[[bin]]
+name = "kapowarr"
+path = "src/main.rs"
+
+# Kapowarr is not Servarr-shaped (its own API, not the shared *arr X-Api-Key
+# client), so this plugin carries only the `ServiceBackend` — deploy/backup/
+# restore of the Kapowarr instance itself. No typed API client, no tool surface.
+[dependencies]
+plugin-toolkit = { version = ">=0.2.1-rc.47", registry = "gitea", package = "orca-plugin-toolkit", default-features = false, features = ["tools", "db"] }
+
+[lints.clippy]
+let_underscore_must_use = "deny"
